@@ -78,7 +78,7 @@
 **如有问题请先看上述使用文档和文章，若不能满足，欢迎 issue 和 pr**
 
  <p align="center">
-  <img width="900" src="https://wpimg.wallstcn.com/a5894c1b-f6af-456e-82df-1151da0839bf.png">
+  <img width="900" src="https://raw.githubusercontent.com/xuchfStrong/xuchfStrong.github.io/master/img/example.png">
 </p>
 
 ## Sponsors
@@ -210,13 +210,6 @@ Detailed changes for each release are documented in the [release notes](https://
 [在线 Demo](http://panjiachen.github.io/vue-element-admin)
 
 ## Donate
-
-如果你觉得这个项目帮助到了你，你可以帮作者买一杯果汁表示鼓励 :tropical_drink:
-![donate](https://panjiachen.github.io/donate/donation.png)
-
-[更多捐赠方式](https://panjiachen.gitee.io/vue-element-admin-site/zh/donate)
-
-[Paypal Me](https://www.paypal.me/panfree23)
 
 ## Browsers support
 
