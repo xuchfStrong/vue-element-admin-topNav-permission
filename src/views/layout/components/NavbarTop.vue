@@ -152,7 +152,7 @@ export default {
         left: 20px;
       }
     }
-  .el-menu.el-menu--horizontal {
+  .el-menu.el-menu--horizontal {  // 这里两个类名连接的作用是当元素同时拥有这两个类，此规则才生效
     border-bottom: solid 0 #e6e6e6;
   }
   .el-menu--horizontal > .el-menu-item {
