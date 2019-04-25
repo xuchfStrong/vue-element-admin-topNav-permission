@@ -1,6 +1,6 @@
 import { asyncRouterMap, constantRouterMap } from '@/router'
-const _import = require('@/utils/_import_' + process.env.NODE_ENV) // 获取组件的方法
-import Layout from '@/views/layout/Layout' // Layout 是架构组件，不在后台返回，在文件里单独引入
+// const _import = require('@/utils/_import_' + process.env.NODE_ENV) // 获取组件的方法
+// import Layout from '@/views/layout/Layout' // Layout 是架构组件，不在后台返回，在文件里单独引入
 
 /**
  * 通过meta.role判断是否与当前用户权限匹配
@@ -36,28 +36,54 @@ import Layout from '@/views/layout/Layout' // Layout 是架构组件，不在后
 //   return res
 // }
 
+function hasId(id, route) {
+  if (route.id) {
+    return route.id === id
+  } else {
+    return false
+  }
+}
+
+function filterAsyncRouter(routes, arr2) {
+  const res = []
+  for (let i = 0; i < arr2.length; i++) {
+    routes.forEach(route => {
+      const tmp = { ...route }
+      if (hasId(arr2[i].id, tmp)) {
+        if (tmp.children) {
+          tmp.children = filterAsyncRouter(tmp.children, arr2)
+        }
+        res.push(tmp)
+      }
+    })
+  }
+  const unfound = { path: '*', redirect: '/404', hidden: true } // 在动态路由最后添加404页面的路由
+  res.push(unfound)
+  return res
+}
+
 /**
  * 递归过滤后台返回的动态异步路由表，返回符合的路由表
  * @param routes asyncRouterMapDynamic
  */
-function filterAsyncRouterDynamic(asyncRouterMapDynamic) { // 遍历后台传来的路由字符串，转换为组件对象
-  const accessedRouters = asyncRouterMapDynamic.filter(route => {
-    if (route.component) {
-      if (route.component === 'Layout') { // Layout组件特殊处理
-        route.component = Layout
-      } else {
-        route.component = _import(route.component)
-      }
-    }
-    if (route.children && route.children.length) {
-      route.children = filterAsyncRouterDynamic(route.children)
-    }
-    return true
-  })
-  const unfound = { path: '*', redirect: '/404', hidden: true } // 在动态路由最后添加404页面的路由
-  accessedRouters.push(unfound)
-  return accessedRouters
-}
+// function filterAsyncRouterDynamic(asyncRouterMapDynamic) { // 遍历后台传来的路由字符串，转换为组件对象
+//   const accessedRouters = asyncRouterMapDynamic.filter(route => {
+//     if (route.component) {
+//       if (route.component === 'Layout') { // Layout组件特殊处理
+//         route.component = Layout
+//       } else {
+//         route.component = _import(route.component)
+//       }
+//     }
+//     if (route.children && route.children.length) {
+//       route.children = filterAsyncRouterDynamic(route.children)
+//     }
+//     return true
+//   })
+//   const unfound = { path: '*', redirect: '/404', hidden: true } // 在动态路由最后添加404页面的路由
+//   accessedRouters.push(unfound)
+//   return accessedRouters
+// }
 
 const permission = {
   state: {
@@ -79,7 +105,8 @@ const permission = {
           accessedRouters = asyncRouterMap
         } else {
           // accessedRouters = filterAsyncRouter(asyncRouterMap, roles)
-          accessedRouters = filterAsyncRouterDynamic(rootGetters.asyncRouterMapDynamic)
+          // accessedRouters = filterAsyncRouterDynamic(rootGetters.asyncRouterMapDynamic)
+          accessedRouters = filterAsyncRouter(asyncRouterMap, rootGetters.asyncRouterMapDynamic)
         }
         commit('SET_ROUTERS', accessedRouters)
         resolve()

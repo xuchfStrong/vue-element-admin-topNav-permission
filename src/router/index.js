@@ -120,6 +120,8 @@ export const asyncRouterMap = [
   {
     path: '/permission',
     component: Layout,
+    id: 1,
+    parentId: 0,
     redirect: '/permission/directive',
     alwaysShow: true, // will always show the root menu
     hidden: false,
@@ -132,6 +134,8 @@ export const asyncRouterMap = [
       {
         path: '/permission/page',
         component: () => import('@/views/permission/page'),
+        id: 11,
+        parentId: 1,
         name: 'PagePermission',
         meta: {
           title: 'pagePermission',
@@ -141,6 +145,8 @@ export const asyncRouterMap = [
       {
         path: '/permission/directive',
         component: () => import('@/views/permission/directive'),
+        id: 12,
+        parentId: 1,
         name: 'DirectivePermission',
         meta: {
           title: 'directivePermission'
@@ -150,6 +156,8 @@ export const asyncRouterMap = [
       {
         path: '/permission/role',
         component: () => import('@/views/permission/role'),
+        id: 13,
+        parentId: 1,
         name: 'RolePermission',
         meta: {
           title: 'rolePermission',
@@ -162,12 +170,16 @@ export const asyncRouterMap = [
   {
     path: '/icon',
     component: Layout,
+    id: 2,
+    parentId: 0,
     redirect: '/icon/index',
     meta: { title: 'icon' },
     children: [
       {
         path: '/icon/index',
         component: () => import('@/views/svg-icons/index'),
+        id: 21,
+        parentId: 2,
         name: 'Icons',
         meta: { title: 'icons', icon: 'icon', noCache: true }
       }
@@ -183,6 +195,8 @@ export const asyncRouterMap = [
   {
     path: '/example',
     component: Layout,
+    id: 3,
+    parentId: 0,
     redirect: '/example/list',
     name: 'Example',
     meta: {
@@ -193,12 +207,16 @@ export const asyncRouterMap = [
       {
         path: '/example/create',
         component: () => import('@/views/example/create'),
+        id: 31,
+        parentId: 3,
         name: 'CreateArticle',
         meta: { title: 'createArticle', icon: 'edit' }
       },
       {
         path: '/example/edit/:id(\\d+)',
         component: () => import('@/views/example/edit'),
+        id: 32,
+        parentId: 3,
         name: 'EditArticle',
         meta: { title: 'editArticle', noCache: true },
         hidden: true
@@ -206,6 +224,8 @@ export const asyncRouterMap = [
       {
         path: '/example/list',
         component: () => import('@/views/example/list'),
+        id: 33,
+        parentId: 3,
         name: 'ArticleList',
         meta: { title: 'articleList', icon: 'list' }
       }
