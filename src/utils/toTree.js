@@ -1,50 +1,20 @@
-// const routes = require('../router/routeStrCopy')
+// const routes = require('../router/routeStrCopyBak')
+// const routes = require('../views/user-management/routes')
 const allRes = [
-  {
-    id: 4,
-    resName: '删除角色',
-    parentId: 2
-  },
-  {
-    id: 3,
-    resName: '编辑角色',
-    parentId: 1
-  },
-  {
-    id: 2,
-    resName: '设置权限',
-    parentId: 1
-  },
-  {
-    id: 5,
-    resName: '添加用户',
-    parentId: 4
-  },
-  {
-    id: 6,
-    resName: '更新用户',
-    parentId: 4
-  },
-  {
-    id: 7,
-    resName: '删除用户',
-    parentId: 6
-  },
-  {
-    id: 8,
-    resName: '重置密码',
-    parentId: 3
-  },
-  {
-    id: 9,
-    resName: '添加地区',
-    parentId: 5
-  },
-  {
-    id: 10,
-    resName: '编辑地区',
-    parentId: 6
-  }
+  { seeId: 10, seeName: '数据共享', menuId: 10, menName: '数据共享', menuPid: 9999 },
+  { seeId: 10, seeName: '数据共享', menuId: 1010, menName: '用户管理', menuPid: 10 },
+  { seeId: 10, seeName: '数据共享', menuId: 101010, menName: '服务管理', menuPid: 1010 },
+  { seeId: 10, seeName: '数据共享', menuId: 101011, menName: '角色管理', menuPid: 1010 },
+  { seeId: 10, seeName: '数据共享', menuId: 1011, menName: '图标', menuPid: 10 },
+  { seeId: 10, seeName: '数据共享', menuId: 101110, menName: '折线图', menuPid: 1011 },
+  { seeId: 10, seeName: '数据共享', menuId: 101111, menName: '柱状图', menuPid: 1011 },
+  { seeId: 11, seeName: '数据治理', menuId: 11, menName: '数据共享', menuPid: 9999 },
+  { seeId: 11, seeName: '数据治理', menuId: 1110, menName: '用户管理', menuPid: 11 },
+  { seeId: 11, seeName: '数据治理', menuId: 111010, menName: '服务管理', menuPid: 1110 },
+  { seeId: 11, seeName: '数据治理', menuId: 111011, menName: '角色管理', menuPid: 1110 },
+  { seeId: 11, seeName: '数据治理', menuId: 1111, menName: '图标', menuPid: 11 },
+  { seeId: 11, seeName: '数据治理', menuId: 111110, menName: '折线图', menuPid: 1111 },
+  { seeId: 11, seeName: '数据治理', menuId: 111111, menName: '柱状图', menuPid: 1111 }
 ]
 /**
 const testdata = [
@@ -105,18 +75,80 @@ function toTreeData(data, attributes) {
 }
  */
 
+/**
+  *
+  * @param {*} source
+  * @param {*} rootId
+  */
+/**
 function setTreeData(source, rootId) {
   const cloneData = JSON.parse(JSON.stringify(source)) // 对源数据深度克隆
   return cloneData.filter(father => { // 循环所有项，并添加children属性
     const branchArr = cloneData.filter(child => father.id === child.parentId) // 返回每一项的子级数组
-    branchArr.length > 0 ? father.childrent = branchArr : '' // 给父级添加一个children属性，并赋值
+    branchArr.length > 0 ? father.children = branchArr : '' // 给父级添加一个children属性，并赋值
     return father.parentId === rootId // 返回第一层
   })
 }
+ */
 
-const treeData = setTreeData(allRes, 1)
-const jsonData = JSON.stringify(treeData)
-console.log('jsonData', jsonData)
+function setTreeData(source, rootId) {
+  const cloneData = JSON.parse(JSON.stringify(source)) // 对源数据深度克隆
+  return cloneData.filter(father => { // 循环所有项，并添加children属性
+    const branchArr = cloneData.filter(child => father.menuId === child.menuPid) // 返回每一项的子级数组
+    branchArr.length > 0 ? father.children = branchArr : '' // 给父级添加一个children属性，并赋值
+    return father.menuPid === rootId // 返回第一层
+  })
+}
+
+function generateTree(menus, checkedKeys) {
+  const res = []
+
+  for (const menu of menus) {
+    const menuPid = menu.menuId
+    // recursive child routes
+    if (menu.children) {
+      menu.children = generateTree(menu.children, checkedKeys)
+    }
+    if (checkedKeys.includes(menuPid) || (menu.children && menu.children.length >= 1)) {
+      res.push(menu)
+    }
+  }
+  return res
+}
+
+function generateArr(routes) {
+  let data = []
+  routes.forEach(route => {
+    data.push(route)
+    if (route.children) {
+      const temp = generateArr(route.children)
+      if (temp.length > 0) {
+        data = [...data, ...temp]
+      }
+    }
+  })
+  return data
+}
+
+function generateFullMenuId(menus) {
+  const data = []
+  menus.forEach(menu => {
+    data.push(menu.menuId)
+  })
+  return data
+}
+
+const checkedKeys = [101010, 111111]
+
+const treeData = setTreeData(allRes, 9999)
+// const jsonData = JSON.stringify(treeData)
+const menuTree = generateTree(treeData, checkedKeys)
+const menuList = generateArr(menuTree)
+const menuIds = generateFullMenuId(menuList)
+// const jsonMenuData = JSON.stringify(menuTree)
+// console.log('jsonMenuData', jsonMenuData)
+// console.log('menuTree', menuTree)
+console.log('menuIds', menuIds)
 
 // const jsonroute = JSON.stringify(route)
 // console.log('route', jsonroute)

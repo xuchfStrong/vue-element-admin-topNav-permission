@@ -21,7 +21,8 @@
             :key="item.path"
             :index="item.path" >
             <template slot="title">
-              <navitem :icon="item.meta.icon||item.meta.icon" :title="generateTitle(item.meta.title)"/>
+              <!-- <navitem :icon="item.meta.icon||item.meta.icon" :title="generateTitle(item.meta.title)"/> -->
+              <navitem :icon="item.meta.icon||item.meta.icon" :title="item.meta.title"/>
             </template>
           </el-menu-item>
         </el-menu>

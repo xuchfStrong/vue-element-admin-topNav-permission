@@ -186,6 +186,46 @@ export const asyncRouterMap = [
     ]
   },
 
+  {
+    path: '/user',
+    component: Layout,
+    id: 6,
+    parentId: 0,
+    redirect: '/user/service',
+    name: 'User',
+    meta: {
+      title: '用户管理',
+      icon: 'example'
+    },
+    children: [
+      {
+        path: '/user/service',
+        component: () => import('@/views/user-management/service'),
+        id: 61,
+        parentId: 6,
+        name: 'UserService',
+        meta: { title: '服务管理', icon: 'edit' }
+      },
+      {
+        path: '/user/role',
+        component: () => import('@/views/user-management/role'),
+        id: 62,
+        parentId: 6,
+        name: 'UserRole',
+        meta: { title: '权限配置', icon: 'list' },
+        hidden: false
+      },
+      {
+        path: '/user/user',
+        component: () => import('@/views/user-management/user'),
+        id: 63,
+        parentId: 6,
+        name: 'UserUser',
+        meta: { title: '用户管理', icon: 'list' }
+      }
+    ]
+  },
+
   /** When your routing table is too long, you can split it into small modules**/
   componentsRouter,
   chartsRouter,
