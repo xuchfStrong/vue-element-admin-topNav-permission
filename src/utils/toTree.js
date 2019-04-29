@@ -1,20 +1,27 @@
 // const routes = require('../router/routeStrCopyBak')
 // const routes = require('../views/user-management/routes')
 const allRes = [
-  { seeId: 10, seeName: '数据共享', menuId: 10, menName: '数据共享', menuPid: 9999 },
-  { seeId: 10, seeName: '数据共享', menuId: 1010, menName: '用户管理', menuPid: 10 },
-  { seeId: 10, seeName: '数据共享', menuId: 101010, menName: '服务管理', menuPid: 1010 },
-  { seeId: 10, seeName: '数据共享', menuId: 101011, menName: '角色管理', menuPid: 1010 },
-  { seeId: 10, seeName: '数据共享', menuId: 1011, menName: '图标', menuPid: 10 },
-  { seeId: 10, seeName: '数据共享', menuId: 101110, menName: '折线图', menuPid: 1011 },
-  { seeId: 10, seeName: '数据共享', menuId: 101111, menName: '柱状图', menuPid: 1011 },
-  { seeId: 11, seeName: '数据治理', menuId: 11, menName: '数据共享', menuPid: 9999 },
-  { seeId: 11, seeName: '数据治理', menuId: 1110, menName: '用户管理', menuPid: 11 },
-  { seeId: 11, seeName: '数据治理', menuId: 111010, menName: '服务管理', menuPid: 1110 },
-  { seeId: 11, seeName: '数据治理', menuId: 111011, menName: '角色管理', menuPid: 1110 },
-  { seeId: 11, seeName: '数据治理', menuId: 1111, menName: '图标', menuPid: 11 },
-  { seeId: 11, seeName: '数据治理', menuId: 111110, menName: '折线图', menuPid: 1111 },
-  { seeId: 11, seeName: '数据治理', menuId: 111111, menName: '柱状图', menuPid: 1111 }
+  { seeId: 10, seeName: '数据共享', meuId: 10, meuName: '数据共享', meuPid: 9999 },
+  { seeId: 10, seeName: '数据共享', meuId: 1010, meuName: '用户管理', meuPid: 10 },
+  { seeId: 10, seeName: '数据共享', meuId: 101010, meuName: '服务管理', meuPid: 1010 },
+  { seeId: 10, seeName: '数据共享', meuId: 101011, meuName: '角色管理', meuPid: 1010 },
+  { seeId: 10, seeName: '数据共享', meuId: 1011, meuName: '图标', meuPid: 10 },
+  { seeId: 10, seeName: '数据共享', meuId: 101110, meuName: '折线图', meuPid: 1011 },
+  { seeId: 10, seeName: '数据共享', meuId: 101111, meuName: '柱状图', meuPid: 1011 },
+  { seeId: 11, seeName: '数据治理', meuId: 11, meuName: '数据共享', meuPid: 9999 },
+  { seeId: 11, seeName: '数据治理', meuId: 1110, meuName: '用户管理', meuPid: 11 },
+  { seeId: 11, seeName: '数据治理', meuId: 111010, meuName: '服务管理', meuPid: 1110 },
+  { seeId: 11, seeName: '数据治理', meuId: 111011, meuName: '角色管理', meuPid: 1110 },
+  { seeId: 11, seeName: '数据治理', meuId: 1111, meuName: '图标', meuPid: 11 },
+  { seeId: 11, seeName: '数据治理', meuId: 111110, meuName: '折线图', meuPid: 1111 },
+  { seeId: 11, seeName: '数据治理', meuId: 111111, meuName: '柱状图', meuPid: 1111 }
+]
+
+const resources = [
+  { seeId: 10, seeName: '数据共享', reeId: 1010, reeName: '添加用户', reeUri: '/user/add', reePid: 10 },
+  { seeId: 10, seeName: '数据共享', reeId: 1011, reeName: '删除用户', reeUri: '/user/delete', reePid: 10 },
+  { seeId: 11, seeName: '数据治理', reeId: 1110, reeName: '添加数据库', reeUri: '/db/add', reePid: 11 },
+  { seeId: 11, seeName: '数据治理', reeId: 1111, reeName: '删除数据库', reeUri: '/db/delete', reePid: 11 }
 ]
 /**
 const testdata = [
@@ -94,9 +101,9 @@ function setTreeData(source, rootId) {
 function setTreeData(source, rootId) {
   const cloneData = JSON.parse(JSON.stringify(source)) // 对源数据深度克隆
   return cloneData.filter(father => { // 循环所有项，并添加children属性
-    const branchArr = cloneData.filter(child => father.menuId === child.menuPid) // 返回每一项的子级数组
+    const branchArr = cloneData.filter(child => father.meuId === child.meuPid) // 返回每一项的子级数组
     branchArr.length > 0 ? father.children = branchArr : '' // 给父级添加一个children属性，并赋值
-    return father.menuPid === rootId // 返回第一层
+    return father.meuPid === rootId // 返回第一层
   })
 }
 
@@ -104,12 +111,12 @@ function generateTree(menus, checkedKeys) {
   const res = []
 
   for (const menu of menus) {
-    const menuPid = menu.menuId
+    const meuPid = menu.meuId
     // recursive child routes
     if (menu.children) {
       menu.children = generateTree(menu.children, checkedKeys)
     }
-    if (checkedKeys.includes(menuPid) || (menu.children && menu.children.length >= 1)) {
+    if (checkedKeys.includes(meuPid) || (menu.children && menu.children.length >= 1)) {
       res.push(menu)
     }
   }
@@ -133,9 +140,26 @@ function generateArr(routes) {
 function generateFullMenuId(menus) {
   const data = []
   menus.forEach(menu => {
-    data.push(menu.menuId)
+    data.push(menu.meuId)
   })
   return data
+}
+
+function generateFullResources(resources) {
+  const resourcescopy = [...resources]
+  const rootId = 9999
+  const seeIds = []
+  resourcescopy.forEach(resource => {
+    if (!seeIds.includes(resource.seeId)) {
+      seeIds.push(resource.seeId)
+    }
+  })
+
+  seeIds.forEach(seeId => {
+    resources.push({ 'seeId': rootId, 'reeId': seeId })
+  })
+
+  return resources
 }
 
 const checkedKeys = [101010, 111111]
@@ -152,4 +176,6 @@ console.log('menuIds', menuIds)
 
 // const jsonroute = JSON.stringify(route)
 // console.log('route', jsonroute)
+const res = generateFullResources(resources)
+console.log(res)
 

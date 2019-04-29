@@ -28,7 +28,15 @@ export function changeServiceStatus(data) {
 // 角色管理
 export function getMenuList(params) {
   return request({
-    url: 'menu/list',
+    url: '/menu/list',
+    method: 'get',
+    params
+  })
+}
+
+export function getResourceList(params) {
+  return request({
+    url: '/resource/list',
     method: 'get',
     params
   })
@@ -74,10 +82,60 @@ export function addRole(data) {
   })
 }
 
-export function updateRole(data) {
+export function editRole(data) {
   return request({
     url: '/role/editRole',
     method: 'post',
     data
   })
 }
+
+// 账户管理
+export function getAccountGrid(params) {
+  return request({
+    url: '/account/grid',
+    method: 'get',
+    params
+  })
+}
+
+export function changeAccountStatus(data) {
+  return request({
+    url: '/account/active',
+    method: 'post',
+    data
+  })
+}
+
+export function resetPwd(data) {
+  return request({
+    url: '/account/resetAccountPassword',
+    method: 'post',
+    data
+  })
+}
+
+export function addAccount(data) {
+  return request({
+    url: '/account/addAccount',
+    method: 'post',
+    data
+  })
+}
+
+export function editAccount(data) {
+  return request({
+    url: '/account/editAccount',
+    method: 'post',
+    data
+  })
+}
+
+export function deleteAccount(data) {
+  return request({
+    url: '/account/delete',
+    method: 'post',
+    data
+  })
+}
+

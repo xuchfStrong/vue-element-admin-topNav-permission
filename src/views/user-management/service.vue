@@ -37,7 +37,7 @@
     </template>
 
     <!--工具条-->
-    <el-col :span="24" class="toolbar toolbar-container">
+    <el-col v-if="showFlag" :span="24" class="toolbar toolbar-container">
       <el-pagination
         :total="total"
         :page-sizes="[10, 20, 30, 50]"
@@ -73,6 +73,11 @@ export default {
       serviceName: '',
       activeValue: 1,
       inactiveValue: 0
+    }
+  },
+  computed: {
+    showFlag() {
+      return this.total > 10
     }
   },
   mounted() {
@@ -132,8 +137,11 @@ export default {
     },
 
     handleFilter: function() {
+      this.loading = true
       const para = {
-        seeName: this.serviceName
+        seeName: this.serviceName,
+        page: this.page,
+        pagesize: this.pagesize
       }
       getServiceGrid(para).then(res => {
         this.service = res.data.list

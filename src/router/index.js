@@ -216,12 +216,20 @@ export const asyncRouterMap = [
         hidden: false
       },
       {
-        path: '/user/user',
-        component: () => import('@/views/user-management/user'),
+        path: '/user/account',
+        component: () => import('@/views/user-management/account'),
         id: 63,
         parentId: 6,
         name: 'UserUser',
         meta: { title: '用户管理', icon: 'list' }
+      },
+      {
+        path: '/user/test',
+        component: () => import('@/views/user-management/test'),
+        id: 63,
+        parentId: 6,
+        name: 'UserTest',
+        meta: { title: '测试', icon: 'list' }
       }
     ]
   },

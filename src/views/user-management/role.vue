@@ -20,12 +20,13 @@
       </el-col>
       <el-col :span="6">
         <el-button type="primary" size="small" icon="el-icon-circle-plus" @click="handleAddRole">新增</el-button>
-        <el-button type="primary" size="small" icon="el-icon-edit" @click="handleEdit">修改</el-button>
-        <el-button type="primary" size="small" icon="el-icon-delete" @click="handleDelete">删除</el-button>
+        <el-button type="primary" size="small" icon="el-icon-edit" @click="handleEditTop">修改</el-button>
+        <el-button type="primary" size="small" icon="el-icon-delete" @click="handleDeleteTop">删除</el-button>
       </el-col>
     </el-row>
 
-    <el-table v-loading="loading" :data="rolesList" style="width: 100%;" border>
+    <el-table v-loading="loading" :data="rolesList" style="width: 100%;" border @selection-change="selsChange">
+      <el-table-column type="selection" width="40" align="center"/>
       <el-table-column align="center" label="角色名称" width="220">
         <template slot-scope="scope">
           {{ scope.row.roeName }}
@@ -38,7 +39,7 @@
       </el-table-column>
       <el-table-column label="服务状态" align="center">
         <template slot-scope="scope">
-          <span>{{ scope.row.roeActive | statusFilter }}</span>
+          {{ scope.row.roeActive | statusFilter }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作">
@@ -50,18 +51,29 @@
             active-color="#13ce66"
             inactive-color="#ff4949"
             @change="handleChangeStatus(scope.$index, scope.row)"/>
-          <el-button type="primary" size="small" @click="handleEdit(scope)">修改</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope)">删除</el-button>
+          <el-button type="text" size="medium" @click="handleEdit(scope)">修改</el-button>
+          <el-button type="text" size="medium" @click="handleDelete(scope)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'修改角色':'添加角色'" width="60%">
-      <el-form :model="role" label-width="70px" label-position="left">
-        <el-form-item label="角色名称">
-          <el-input v-model="role.roeName" placeholder="角色名称" />
-        </el-form-item>
-        <el-form-item label="角色描述">
+      <el-form ref="form" :model="role" :rules="formRules" label-width="80px" label-position="right">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="角色名称" prop="roeName">
+              <el-input v-model="role.roeName" :disabled="dialogType==='edit'" :maxlength="20" placeholder="角色名称" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="角色状态">
+              <el-radio v-model="role.roeActive" :label="1">启用</el-radio>
+              <el-radio v-model="role.roeActive" :label="0">禁用</el-radio>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="角色描述" prop="roeInfo">
           <el-input
             v-model="role.roeInfo"
             :autosize="{ minRows: 1, maxRows: 4}"
@@ -75,40 +87,52 @@
             <span>菜单授权</span>
             <el-form-item label="" label-width="0px">
               <el-tree
-                ref="tree"
+                ref="menuTree"
                 :check-strictly="checkStrictly"
-                :data="menusData"
-                :props="defaultProps"
+                :data="menuData"
+                :props="menuProps"
                 show-checkbox
-                node-key="menuId"
+                node-key="meuId"
                 class="permission-tree" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <!-- <span>资源授权</span>
+            <span>资源授权</span>
             <el-form-item label="" label-width="0px">
               <el-tree
-                ref="tree"
+                ref="resourceTree"
                 :check-strictly="checkStrictly"
-                :data="menusData"
-                :props="defaultProps"
+                :data="resourcesData"
+                :props="resourceProps"
                 show-checkbox
-                node-key="path"
+                node-key="reeId"
                 class="permission-tree" />
-            </el-form-item> -->
+            </el-form-item>
           </el-col>
         </el-row>
       </el-form>
       <div style="text-align:right;">
         <el-button type="danger" @click="dialogVisible=false">取消</el-button>
-        <el-button type="primary" @click="confirmRole">确定</el-button>
+        <el-button type="primary" @click="handleSubmit">确定</el-button>
       </div>
     </el-dialog>
+
+    <!--工具条-->
+    <el-col v-if="showFlag" :span="24" class="toolbar toolbar-container">
+      <el-pagination
+        :total="total"
+        :page-sizes="[10, 20, 30, 50]"
+        :page-size="pagesize"
+        style="float:right;"
+        layout="total, sizes, prev, pager, next, jumper"
+        @current-change="handleCurrentChange"
+        @size-change="changePageSize"/>
+    </el-col>
   </div>
 </template>
 
 <script>
-import { getMenuList, changeRoleStatus, getRoleGrid, deleteRole, addRole, updateRole } from '@/api/userManage'
+import { getMenuList, getResourceList, changeRoleStatus, getRoleGrid, deleteRole, addRole, editRole } from '@/api/userManage'
 import { deepClone } from '@/utils'
 
 const defaultRole = {
@@ -134,13 +158,23 @@ export default {
     return {
       role: Object.assign({}, defaultRole),
       menus: [],
+      resources: [],
       rolesList: [],
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: false,
-      defaultProps: {
+      menuProps: {
         children: 'children',
-        label: 'menName'
+        label: 'meuName'
+      },
+      resourceProps: {
+        children: 'children',
+        label: 'reeName'
+      },
+      formRules: {
+        roeName: [
+          { required: true, message: '请输入角色名', trigger: 'blur' }
+        ]
       },
       loading: false,
       total: 0,
@@ -154,30 +188,46 @@ export default {
     }
   },
   computed: {
-    menusData() {
+    menuData() {
       return this.menus
+    },
+    resourcesData() {
+      return this.resources
+    },
+    showFlag() {
+      return this.total > 10
     }
   },
   created() {
-    // Mock: get all routes and roles list from server
     this.handleGetMenuList()
-    this.getRoles()
+    this.handleGetResourceList()
+    this.handleGetRoles()
   },
   methods: {
-    // 改变页面
-    handleCurrentChange(val) {
-      this.page = val
-      this.handleGetService()
-    },
-
-    // 获取选中的行
-    selsChange: function(sels) {
-      this.sels = sels
-    },
     async handleGetMenuList() {
       const res = await getMenuList()
       this.serviceMenus = res.data
-      this.menus = this.setMenuTreeData(res.data, 9999)
+      const fullMenus = this.generateFullMenus(res.data)
+      this.menus = this.setMenuTreeData(fullMenus, 9999)
+    },
+
+    async handleGetResourceList() {
+      const res = await getResourceList()
+      this.serviceResources = res.data
+      const fullResources = this.generateFullResources(res.data)
+      this.resources = this.setResourceTreeData(fullResources, 9999)
+    },
+
+    async handleGetRoles() {
+      this.loading = true
+      const para = {
+        page: this.page,
+        pagesize: this.pagesize
+      }
+      const res = await getRoleGrid(para)
+      this.rolesList = res.data.list
+      this.total = res.data.total
+      this.loading = false
     },
 
     // 将一个tree的所有层级的子节点都和父节点放到同一个列表中
@@ -195,13 +245,63 @@ export default {
       return data
     },
 
+    // 将资源列表中的每一个seeId添加一条{'meuPid': 9999, 'meuId': 本服务的seeId, meuName: 本服务的seeName}
+    generateFullMenus(menus) {
+      const menusCopy = [...menus]
+      const rootId = 9999
+      const seeIds = []
+      const services = []
+      menusCopy.forEach(menu => {
+        if (!seeIds.includes(menu.seeId)) {
+          seeIds.push(menu.seeId)
+          services.push({ seeId: menu.seeId, seeName: menu.seeName })
+        }
+      })
+
+      services.forEach(service => {
+        menus.push({ meuPid: rootId, meuId: service.seeId, meuName: service.seeName })
+      })
+
+      return menus
+    },
+
+    // 将资源列表中的每一个seeId添加一条{'seeId': 9999, 'reeId': 本服务的seeId, reeName: 本服务的seeName}
+    generateFullResources(resources) {
+      const resourcesCopy = [...resources]
+      const rootId = 9999
+      const seeIds = []
+      const services = []
+      resourcesCopy.forEach(resource => {
+        if (!seeIds.includes(resource.seeId)) {
+          seeIds.push(resource.seeId)
+          services.push({ seeId: resource.seeId, seeName: resource.seeName })
+        }
+      })
+
+      services.forEach(service => {
+        resources.push({ 'seeId': rootId, 'reeId': service.seeId, reeName: service.seeName })
+      })
+
+      return resources
+    },
+
     // 将获取的带有父子节点关系的菜单列表生成tree，用于绑定到tree组件上
     setMenuTreeData(list, rootId) {
       const cloneData = JSON.parse(JSON.stringify(list)) // 对源数据深度克隆
       return cloneData.filter(father => { // 循环所有项，并添加children属性
-        const branchArr = cloneData.filter(child => father.menuId === child.menuPid) // 返回每一项的子级数组
+        const branchArr = cloneData.filter(child => father.meuId === child.meuPid) // 返回每一项的子级数组
         branchArr.length > 0 ? father.children = branchArr : '' // 给父级添加一个children属性，并赋值
-        return father.menuPid === rootId // 返回第一层
+        return father.meuPid === rootId // 返回第一层
+      })
+    },
+
+    // 将获取的带有父子节点关系的资源列表生成tree，用于绑定到tree组件上
+    setResourceTreeData(list, rootId) {
+      const cloneData = JSON.parse(JSON.stringify(list)) // 对源数据深度克隆
+      return cloneData.filter(father => { // 循环所有项，并添加children属性
+        const branchArr = cloneData.filter(child => father.reeId === child.seeId) // 返回每一项的子级数组
+        branchArr.length > 0 ? father.children = branchArr : '' // 给父级添加一个children属性，并赋值
+        return father.seeId === rootId // 返回第一层
       })
     },
 
@@ -210,13 +310,30 @@ export default {
       const res = []
 
       for (const menu of menus) {
-        const menuPid = menu.menuId
+        const meuPid = menu.meuId
         // recursive child routes
         if (menu.children) {
           menu.children = this.generateMenuTree(menu.children, checkedKeys)
         }
-        if (checkedKeys.includes(menuPid) || (menu.children && menu.children.length >= 1)) {
+        if (checkedKeys.includes(meuPid) || (menu.children && menu.children.length >= 1)) {
           res.push(menu)
+        }
+      }
+      return res
+    },
+
+    // 根据选中的一个资源节点的key，将其关联的父节点都获取到，生成tree
+    generateResourceTree(resources, checkedKeys) {
+      const res = []
+
+      for (const resource of resources) {
+        const seePid = resource.reeId
+        // recursive child routes
+        if (resource.children) {
+          resource.children = this.generateResourceTree(resource.children, checkedKeys)
+        }
+        if (checkedKeys.includes(seePid) || (resource.children && resource.children.length >= 1)) {
+          res.push(resource)
         }
       }
       return res
@@ -226,22 +343,25 @@ export default {
     generateFullMenuId(menus) {
       const data = []
       menus.forEach(menu => {
-        data.push(menu.menuId)
+        data.push(menu.meuId)
       })
       return data
     },
 
-    async getRoles() {
-      this.loading = true
-      const res = await getRoleGrid()
-      this.rolesList = res.data.list
-      this.loading = false
+    // 将资源的array数据里面的reeId取出来
+    generateFullResourceId(resources) {
+      const data = []
+      resources.forEach(resource => {
+        data.push(resource.reeId)
+      })
+      return data
     },
 
     handleAddRole() {
       this.role = Object.assign({}, defaultRole)
-      if (this.$refs.tree) {
-        this.$refs.tree.setCheckedNodes([])
+      if (this.$refs.menuTree && this.$refs.resourceTree) {
+        this.$refs.menuTree.setCheckedNodes([])
+        this.$refs.resourceTree.setCheckedNodes([])
       }
       this.dialogType = 'new'
       this.dialogVisible = true
@@ -253,13 +373,15 @@ export default {
       this.role = deepClone(scope.row)
       this.$nextTick(() => {
         const menuIds = this.role.menuIds
-        this.$refs.tree.setCheckedKeys(menuIds)
+        const resourceIds = this.role.resourceIds
+        this.$refs.menuTree.setCheckedKeys(menuIds)
+        this.$refs.resourceTree.setCheckedKeys(resourceIds)
         // set checked state of a node not affects its father and child nodes
         this.checkStrictly = false
       })
     },
     handleDelete({ $index, row }) {
-      this.$confirm('确定要删除该角色?', '确认删除', {
+      this.$confirm('确定要删除该角色?', '删除角色', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
@@ -274,18 +396,30 @@ export default {
         .catch(err => { console.error(err) })
     },
 
+    handleSubmit() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          this.confirmRole()
+        }
+      })
+    },
+
     async confirmRole() {
       const isEdit = this.dialogType === 'edit'
-
-      const checkedKeys = this.$refs.tree.getCheckedKeys()
-      const menuTree = this.generateMenuTree(deepClone(this.menus), checkedKeys)
+      const checkedMenuKeys = this.$refs.menuTree.getCheckedKeys()
+      const checkedResourceKeys = this.$refs.resourceTree.getCheckedKeys()
+      const menuTree = this.generateMenuTree(deepClone(this.menus), checkedMenuKeys)
+      const resourceTree = this.generateResourceTree(deepClone(this.resources), checkedResourceKeys)
       const menuList = this.generateArr(menuTree)
+      const resourceList = this.generateArr(resourceTree)
       const menuIds = this.generateFullMenuId(menuList)
+      const resourceIds = this.generateFullResourceId(resourceList)
       this.role.menuIds = menuIds
+      this.role.resourceIds = resourceIds
 
       if (isEdit) {
         try {
-          await updateRole(this.role)
+          await editRole(this.role)
           for (let index = 0; index < this.rolesList.length; index++) {
             if (this.rolesList[index].roeId === this.role.roeId) {
               this.rolesList.splice(index, 1, Object.assign({}, this.role))
@@ -308,20 +442,24 @@ export default {
       this.dialogVisible = false
     },
 
-    reverseStatus: function(number) {
-      if (number) {
-        return 0
-      } else {
-        return 1
-      }
-    },
-
-    changePageSize: function(size) {
+    changePageSize(size) {
       this.pagesize = size
-      this.handleGetService()
+      this.handleGetRoles()
     },
 
-    handleChangeStatus: function(index, row) {
+    // 改变页面
+    handleCurrentChange(val) {
+      this.page = val
+      this.handleGetRoles()
+    },
+
+    // 获取选中的行
+    selsChange(sels) {
+      this.sels = sels
+    },
+
+    // 修改角色状态
+    handleChangeStatus(index, row) {
       const status = this.reverseStatus(row.roeActive)
       const para = {
         roeId: row.roeId,
@@ -332,9 +470,21 @@ export default {
         row.roeActive = status
       })
     },
-    handleFilter: function() {
+
+    reverseStatus(number) {
+      if (number) {
+        return 0
+      } else {
+        return 1
+      }
+    },
+
+    handleFilter() {
+      this.loading = true
       const para = {
-        roeName: this.roleName
+        roeName: this.roleName,
+        page: this.page,
+        pagesize: this.pagesize
       }
       getRoleGrid(para).then(res => {
         this.rolesList = res.data.list
@@ -343,6 +493,64 @@ export default {
       }).catch(res => {
         this.loading = false
       })
+    },
+
+    // 顶部编辑按钮
+    handleEditTop() {
+      if (this.sels.length !== 1) {
+        this.$message({
+          message: '请选中一行',
+          type: 'warning',
+          duration: 2 * 1000
+        })
+      } else {
+        this.dialogType = 'edit'
+        this.dialogVisible = true
+        const role = this.sels.map(item => {
+          return {
+            roeInfo: item.roeInfo,
+            roeName: item.roeName,
+            roeId: item.roeId,
+            roeActive: item.roeActive,
+            menuIds: [...item.menuIds],
+            resourceIds: [...item.resourceIds]
+          }
+        })
+        this.role = role[0]
+        this.$nextTick(() => {
+          const menuIds = this.role.menuIds
+          const resourceIds = this.role.resourceIds
+          this.$refs.menuTree.setCheckedKeys(menuIds)
+          this.$refs.resourceTree.setCheckedKeys(resourceIds)
+          // set checked state of a node not affects its father and child nodes
+          this.checkStrictly = false
+        })
+      }
+    },
+
+    // 顶部删除按钮
+    handleDeleteTop() {
+      if (this.sels.length !== 1) {
+        this.$message({
+          message: '请选中一行',
+          type: 'warning',
+          duration: 2 * 1000
+        })
+      } else {
+        const roeIds = this.sels.map(item => item.roeId)
+        const roeId = roeIds[0]
+        this.$confirm('确定要删除该角色?', '删除角色', {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(async() => {
+          const para = {
+            roeId: roeId
+          }
+          await deleteRole(para)
+          this.handleGetRoles()
+        }).catch(err => { console.error(err) })
+      }
     }
   }
 }
@@ -363,22 +571,22 @@ export default {
     padding-right: 100px;
   }
 
-  .toolnbar-add{
-    padding-bottom: 5px;
-    padding-top: 5px;
-    background-color: #f8f6f6;
+.toolnbar-add{
+  padding-bottom: 5px;
+  padding-top: 5px;
+  background-color: #f8f6f6;
+}
+.name-bar{
+  line-height: 32px;
+}
+.card-panel-icon {
+  margin-left: 10px;
+  color: #3b3a3a;
   }
-  .name-bar{
-    height: 32px;
-  }
-  .card-panel-icon {
-    margin-left: 10px;
-    color: #3b3a3a;
-    }
-  .tree-container{
-    border: #C0C4CC 1px solid;
-    border-radius: 3px;
-    padding: 5px;
-    margin-bottom: 10px;
-  }
+.tree-container{
+  border: #C0C4CC 1px solid;
+  border-radius: 3px;
+  padding: 5px;
+  margin-bottom: 10px;
+}
 </style>
