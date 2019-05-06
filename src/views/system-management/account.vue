@@ -104,7 +104,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <div class="note-text">新增帐号默认密码为：123456</div>
+        <div v-if="dialogType=='new'" class="note-text">默认初始密码为：123456</div>
 
         <el-row type="flex" justify="center" class="transfer-container">
           <el-transfer
@@ -283,7 +283,7 @@ export default {
       this.account = deepClone(scope.row)
     },
     handleDelete({ $index, row }) {
-      this.$confirm('确定要删除该帐号?', '确认删除', {
+      this.$confirm('确定要删除该帐号?', '提示', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
@@ -302,7 +302,7 @@ export default {
       const para = {
         actId: scope.row.actId
       }
-      this.$confirm('确定要重置密码?', '重置密码', {
+      this.$confirm('确定重置密码? 重置后的密码为123456。', '提示', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
@@ -417,7 +417,7 @@ export default {
       } else {
         const actIds = this.sels.map(item => item.actId)
         const actId = actIds[0]
-        this.$confirm('确定要删除该帐号?', '删除帐号', {
+        this.$confirm('确定要删除该帐号?', '提示', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'warning'
@@ -462,7 +462,7 @@ export default {
     margin-bottom: 10px;
   }
   .note-text {
-    color: rgb(241, 84, 64);
+    color: #409EFF;
     margin-bottom: 10px;
   }
 </style>
