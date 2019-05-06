@@ -17,6 +17,9 @@ const getters = {
   errorLogs: state => state.errorLog.logs,
   navMenu: state => state.app.navMenu,
   isDashboard: state => state.app.isDashboard,
-  asyncRouterMapDynamic: state => state.user.asyncRouterMapDynamic
+  asyncRouterMapDynamic: state => state.user.asyncRouterMapDynamic,
+  account: state => state.user.account,
+  isAdmin: state => state.user.isAdmin,
+  isGenratedRoutes: state => state.permission.isGenratedRoutes
 }
 export default getters

@@ -36,9 +36,9 @@ import { asyncRouterMap, constantRouterMap } from '@/router'
 //   return res
 // }
 
-function hasId(id, route) {
-  if (route.id) {
-    return route.id === id
+function hasRouteName(name, route) {
+  if (route.name) {
+    return route.name === name
   } else {
     return false
   }
@@ -49,7 +49,7 @@ function filterAsyncRouter(routes, arr2) {
   for (let i = 0; i < arr2.length; i++) {
     routes.forEach(route => {
       const tmp = { ...route }
-      if (hasId(arr2[i].id, tmp)) {
+      if (hasRouteName(arr2[i].name, tmp)) {
         if (tmp.children) {
           tmp.children = filterAsyncRouter(tmp.children, arr2)
         }
@@ -88,20 +88,24 @@ function filterAsyncRouter(routes, arr2) {
 const permission = {
   state: {
     routers: [],
-    addRouters: []
+    addRouters: [],
+    isGenratedRoutes: false
   },
   mutations: {
     SET_ROUTERS: (state, routers) => {
       state.addRouters = routers
       state.routers = constantRouterMap.concat(routers)
+    },
+    SET_IsGenratedRoutes: (state, isGenratedRoutes) => {
+      state.isGenratedRoutes = isGenratedRoutes
     }
   },
   actions: {
     GenerateRoutes({ commit, rootGetters }, data) {
       return new Promise(resolve => {
-        const { roles } = data
+        const { isAdmin } = data
         let accessedRouters
-        if (roles.includes('admin')) {
+        if (isAdmin === true) {
           accessedRouters = asyncRouterMap
         } else {
           // accessedRouters = filterAsyncRouter(asyncRouterMap, roles)
@@ -109,6 +113,7 @@ const permission = {
           accessedRouters = filterAsyncRouter(asyncRouterMap, rootGetters.asyncRouterMapDynamic)
         }
         commit('SET_ROUTERS', accessedRouters)
+        commit('SET_IsGenratedRoutes', true)
         resolve()
       })
     }

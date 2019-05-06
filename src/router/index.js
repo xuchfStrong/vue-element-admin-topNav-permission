@@ -111,7 +111,7 @@ export const constantRouterMap = [
 ]
 
 export default new Router({
-  // mode: 'history', // require service support
+  // mode: 'history', // 需要后台服务支持
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
@@ -125,6 +125,7 @@ export const asyncRouterMap = [
     redirect: '/permission/directive',
     alwaysShow: true, // will always show the root menu
     hidden: false,
+    name: 'Permission',
     meta: {
       title: 'permission',
       icon: 'lock',
@@ -187,49 +188,41 @@ export const asyncRouterMap = [
   },
 
   {
-    path: '/user',
+    path: '/system',
     component: Layout,
     id: 6,
     parentId: 0,
-    redirect: '/user/service',
-    name: 'User',
+    redirect: '/system/service',
+    name: 'System',
     meta: {
-      title: '用户管理',
+      title: '系统管理',
       icon: 'example'
     },
     children: [
       {
-        path: '/user/service',
-        component: () => import('@/views/user-management/service'),
+        path: '/system/service',
+        component: () => import('@/views/system-management/service'),
         id: 61,
         parentId: 6,
-        name: 'UserService',
+        name: 'SystemService',
         meta: { title: '服务管理', icon: 'edit' }
       },
       {
-        path: '/user/role',
-        component: () => import('@/views/user-management/role'),
+        path: '/system/role',
+        component: () => import('@/views/system-management/role'),
         id: 62,
         parentId: 6,
-        name: 'UserRole',
-        meta: { title: '权限配置', icon: 'list' },
+        name: 'SystemRole',
+        meta: { title: '角色管理', icon: 'list' },
         hidden: false
       },
       {
-        path: '/user/account',
-        component: () => import('@/views/user-management/account'),
+        path: '/system/account',
+        component: () => import('@/views/system-management/account'),
         id: 63,
         parentId: 6,
-        name: 'UserUser',
+        name: 'SystemUser',
         meta: { title: '用户管理', icon: 'list' }
-      },
-      {
-        path: '/user/test',
-        component: () => import('@/views/user-management/test'),
-        id: 63,
-        parentId: 6,
-        name: 'UserTest',
-        meta: { title: '测试', icon: 'list' }
       }
     ]
   },
@@ -246,7 +239,7 @@ export const asyncRouterMap = [
     id: 3,
     parentId: 0,
     redirect: '/example/list',
-    name: 'Example',
+    name: 'Article',
     meta: {
       title: 'example',
       icon: 'example'

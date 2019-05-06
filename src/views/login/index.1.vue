@@ -3,33 +3,33 @@
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
       <div class="title-container">
         <h3 class="title">
-          系统登录
+          {{ $t('login.title') }}
         </h3>
-        <!-- <lang-select class="set-language" /> -->
+        <lang-select class="set-language" />
       </div>
 
-      <el-form-item prop="actAccount">
+      <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
         <el-input
-          v-model="loginForm.actAccount"
-          placeholder=""
-          name="actAccount"
+          v-model="loginForm.username"
+          :placeholder="$t('login.username')"
+          name="username"
           type="text"
           auto-complete="on"
         />
       </el-form-item>
 
-      <el-form-item prop="actPassword">
+      <el-form-item prop="password">
         <span class="svg-container">
           <svg-icon icon-class="password" />
         </span>
         <el-input
-          v-model="loginForm.actPassword"
+          v-model="loginForm.password"
           :type="passwordType"
-          placeholder=""
-          name="actPassword"
+          :placeholder="$t('login.password')"
+          name="password"
           auto-complete="on"
           @keyup.enter.native="handleLogin"
         />
@@ -37,13 +37,12 @@
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
       </el-form-item>
-      <el-checkbox v-model="checked" class="remember-box">记住密码</el-checkbox>
 
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">
-        登录
+        {{ $t('login.logIn') }}
       </el-button>
 
-      <!-- <div style="position:relative">
+      <div style="position:relative">
         <div class="tips">
           <span>{{ $t('login.username') }} : admin</span>
           <span>{{ $t('login.password') }} : {{ $t('login.any') }}</span>
@@ -58,7 +57,7 @@
         <el-button class="thirdparty-button" type="primary" @click="showDialog=true">
           {{ $t('login.thirdparty') }}
         </el-button>
-      </div> -->
+      </div>
     </el-form>
 
     <el-dialog :title="$t('login.thirdparty')" :visible.sync="showDialog">
@@ -72,15 +71,21 @@
 </template>
 
 <script>
+import { validUsername } from '@/utils/validate'
 import LangSelect from '@/components/LangSelect'
 import SocialSign from './socialsignin'
-import Cookies from 'js-cookie'
-import CryptoJS from 'crypto-js'
 
 export default {
   name: 'Login',
   components: { LangSelect, SocialSign },
   data() {
+    const validateUsername = (rule, value, callback) => {
+      if (!validUsername(value)) {
+        callback(new Error('Please enter the correct user name'))
+      } else {
+        callback()
+      }
+    }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
         callback(new Error('The password can not be less than 6 digits'))
@@ -89,13 +94,13 @@ export default {
       }
     }
     return {
-      checked: false,
       loginForm: {
-        actAccount: '',
-        actPassword: ''
+        username: 'admin',
+        password: '1111111'
       },
       loginRules: {
-        actPassword: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       passwordType: 'password',
       loading: false,
@@ -113,7 +118,6 @@ export default {
   },
   created() {
     // window.addEventListener('hashchange', this.afterQRScan)
-    this.getCookie()
   },
   destroyed() {
     // window.removeEventListener('hashchange', this.afterQRScan)
@@ -129,11 +133,6 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
-          if (this.checked) {
-            this.setCookie(this.loginForm.actAccount, this.loginForm.actPassword, 7, this.checked)
-          } else {
-            this.removeCookie()
-          }
           this.loading = true
           this.$store.dispatch('LoginByUsername', this.loginForm).then(() => {
             this.loading = false
@@ -164,30 +163,6 @@ export default {
       //     this.$router.push({ path: '/' })
       //   })
       // }
-    },
-
-    // 设置cookie
-    setCookie(c_name, c_pwd, exdays, remeberFlag) {
-      const cipherPwd = CryptoJS.AES.encrypt(c_pwd, 'secretkey123').toString()
-      Cookies.set('actAccount', c_name, { expires: exdays, path: '/' })
-      Cookies.set('actPassword', cipherPwd, { expires: exdays, path: '/' })
-      Cookies.set('remeberFlag', remeberFlag, { expires: exdays, path: '/' })
-    },
-
-    // 读取cookie
-    getCookie() {
-      if (Cookies.get('remeberFlag')) {
-        const cipherPwd = Cookies.get('actPassword')
-        this.loginForm.actAccount = Cookies.get('actAccount')
-        this.loginForm.actPassword = CryptoJS.AES.decrypt(cipherPwd, 'secretkey123').toString(CryptoJS.enc.Utf8)
-        this.checked = true
-      }
-    },
-
-    removeCookie() {
-      Cookies.remove('remeberFlag', { path: '/' })
-      Cookies.remove('actAccount', { path: '/' })
-      Cookies.remove('actPassword', { path: '/' })
     }
   }
 }
@@ -306,9 +281,6 @@ $light_gray:#eee;
     position: absolute;
     right: 0;
     bottom: 6px;
-  }
-  .remember-box {
-    margin-bottom: 15px;
   }
 }
 </style>

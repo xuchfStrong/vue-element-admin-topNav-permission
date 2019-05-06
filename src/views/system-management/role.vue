@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="24" class="toolbar" style="padding-bottom: 0px">
         <el-form :inline="true">
-          <span style="color: #3b3a3a">角色名称:</span>
+          <span class="main-text">角色名称:</span>
           <el-input v-model="roleName" placeholder="请输入角色名称" style="width: 200px;padding-left: 5px;padding-right: 20px" class="filter-item" @keyup.enter.native="handleFilter"/>
           <el-form-item>
             <el-button type="primary" @click="handleFilter">查询</el-button>
@@ -14,12 +14,12 @@
 
     <!-- 新增工具条 -->
     <el-row class="toolnbar-add">
-      <el-col :span="18" class="name-bar">
+      <el-col :span="8" class="name-bar main-text">
         <svg-icon icon-class="list" class-name="card-panel-icon" />
-        <b style="color: #3b3a3a">权限配置列表</b>
+        <b>角色列表</b>
       </el-col>
-      <el-col :span="6">
-        <el-button type="primary" size="small" icon="el-icon-circle-plus" @click="handleAddRole">新增</el-button>
+      <el-col :span="16" style="text-align:right">
+        <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAddRole">新增</el-button>
         <el-button type="primary" size="small" icon="el-icon-edit" @click="handleEditTop">修改</el-button>
         <el-button type="primary" size="small" icon="el-icon-delete" @click="handleDeleteTop">删除</el-button>
       </el-col>
@@ -369,14 +369,14 @@ export default {
     handleEdit(scope) {
       this.dialogType = 'edit'
       this.dialogVisible = true
-      this.checkStrictly = true
+      // this.checkStrictly = true
       this.role = deepClone(scope.row)
       this.$nextTick(() => {
         const menuIds = this.role.menuIds
         const resourceIds = this.role.resourceIds
         this.$refs.menuTree.setCheckedKeys(menuIds)
         this.$refs.resourceTree.setCheckedKeys(resourceIds)
-        // set checked state of a node not affects its father and child nodes
+        // 将一个节点设置为选中时，不影响其父节点或者子节点的选中关系
         this.checkStrictly = false
       })
     },
@@ -522,7 +522,7 @@ export default {
           const resourceIds = this.role.resourceIds
           this.$refs.menuTree.setCheckedKeys(menuIds)
           this.$refs.resourceTree.setCheckedKeys(resourceIds)
-          // set checked state of a node not affects its father and child nodes
+          // 将一个节点设置为选中时，不影响其父节点或者子节点的选中关系
           this.checkStrictly = false
         })
       }
@@ -581,7 +581,6 @@ export default {
 }
 .card-panel-icon {
   margin-left: 10px;
-  color: #3b3a3a;
   }
 .tree-container{
   border: #C0C4CC 1px solid;

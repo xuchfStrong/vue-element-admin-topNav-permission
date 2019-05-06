@@ -1,12 +1,12 @@
 import request from '@/utils/request'
 
-export function loginByUsername(username, password) {
+export function loginByUsername(actAccount, actPassword) {
   const data = {
-    username,
-    password
+    actAccount,
+    actPassword
   }
   return request({
-    url: '/login/login',
+    url: '/account/login',
     // url: 'https://www.easy-mock.com/mock/5cb4248ad43f930787399771/xinyong/login/login',
     method: 'post',
     data
@@ -15,9 +15,9 @@ export function loginByUsername(username, password) {
 
 export function logout() {
   return request({
-    url: '/login/logout',
+    url: '/account/logout',
     // url: 'https://www.easy-mock.com/mock/5cb4248ad43f930787399771/xinyong/login/logout',
-    method: 'post'
+    method: 'get'
   })
 }
 
@@ -26,7 +26,7 @@ export function getUserInfo(token) {
     url: '/user/info',
     // url: 'https://www.easy-mock.com/mock/5cb4248ad43f930787399771/xinyong/user/info',
     method: 'get',
-    params: { token }
+    params: { 'access-token': token }
   })
 }
 

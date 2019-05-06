@@ -4,11 +4,11 @@
     <el-row>
       <el-col :span="24" class="toolbar" style="padding-bottom: 0px">
         <el-form :inline="true">
-          <span style="color: #3b3a3a">账户:</span>
-          <el-input v-model="actAccount" placeholder="请输入账户" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-          <span style="color: #3b3a3a">姓名:</span>
+          <span class="main-text">帐号:</span>
+          <el-input v-model="actAccount" placeholder="请输入帐号" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+          <span class="main-text">姓名:</span>
           <el-input v-model="actName" placeholder="请输入姓名" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-          <span style="color: #3b3a3a">手机号码:</span>
+          <span class="main-text">手机号码:</span>
           <el-input v-model="actPhone" placeholder="请输入手机号码" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
           <el-form-item>
             <el-button type="primary" @click="handleFilter">查询</el-button>
@@ -19,12 +19,12 @@
 
     <!-- 新增工具条 -->
     <el-row class="toolnbar-add">
-      <el-col :span="18" class="name-bar">
+      <el-col :span="8" class="name-bar main-text">
         <svg-icon icon-class="list" class-name="card-panel-icon" />
-        <b style="color: #3b3a3a">账户列表</b>
+        <b>帐号列表</b>
       </el-col>
-      <el-col :span="6">
-        <el-button type="primary" size="small" icon="el-icon-circle-plus" @click="handleAddAccount">新增</el-button>
+      <el-col :span="16" style="text-align:right">
+        <el-button type="primary" size="small" icon="el-icon-plus" @click="handleAddAccount">新增</el-button>
         <el-button type="primary" size="small" icon="el-icon-edit" @click="handleEditTop">修改</el-button>
         <el-button type="primary" size="small" icon="el-icon-delete" @click="handleDeleteTop">删除</el-button>
       </el-col>
@@ -33,7 +33,7 @@
     <!--列表-->
     <el-table v-loading="loading" :data="accountList" highlight-current-row border fit stripe @selection-change="selsChange">
       <el-table-column type="selection" width="40" align="center"/>
-      <el-table-column prop="actAccount" label="账户" sortable align="center"/>
+      <el-table-column prop="actAccount" label="帐号" sortable align="center"/>
       <el-table-column prop="actName" label="姓名" align="center"/>
       <el-table-column prop="actPhone" label="手机号码" width="110" align="center"/>
       <el-table-column prop="actEmail" label="邮箱地址" width="200" align="center"/>
@@ -64,12 +64,12 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'修改账户':'添加账户'" width="50%">
-      <el-form ref="form" :model="account" :rules="formRules" label-width="80px" label-position="right">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'修改帐号':'添加帐号'" width="50%">
+      <el-form ref="form" :model="account" :rules="formRules" label-width="80px" label-position="left">
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="账户" prop="actAccount">
-              <el-input v-model="account.actAccount" :disabled="dialogType==='edit'" :maxlength="20" placeholder="账户" />
+            <el-form-item label="帐号" prop="actAccount">
+              <el-input v-model="account.actAccount" :disabled="dialogType==='edit'" :maxlength="20" placeholder="帐号" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -98,12 +98,13 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="账户状态">
+            <el-form-item label="帐号状态">
               <el-radio v-model="account.actActive" :label="1">启用</el-radio>
               <el-radio v-model="account.actActive" :label="0">禁用</el-radio>
             </el-form-item>
           </el-col>
         </el-row>
+        <div class="note-text">新增帐号默认密码为：123456</div>
 
         <el-row type="flex" justify="center" class="transfer-container">
           <el-transfer
@@ -198,7 +199,7 @@ export default {
       roles: [],
       formRules: {
         actAccount: [
-          { required: true, message: '请输入账户名', trigger: 'blur' }
+          { required: true, message: '请输入帐号名', trigger: 'blur' }
         ]
       }
     }
@@ -282,7 +283,7 @@ export default {
       this.account = deepClone(scope.row)
     },
     handleDelete({ $index, row }) {
-      this.$confirm('确定要删除该账户?', '确认删除', {
+      this.$confirm('确定要删除该帐号?', '确认删除', {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
@@ -416,7 +417,7 @@ export default {
       } else {
         const actIds = this.sels.map(item => item.actId)
         const actId = actIds[0]
-        this.$confirm('确定要删除该账户?', '删除账户', {
+        this.$confirm('确定要删除该帐号?', '删除帐号', {
           confirmButtonText: '确认',
           cancelButtonText: '取消',
           type: 'warning'
@@ -433,7 +434,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
   .toolbar-container{
     padding-top: 30px;
     padding-bottom: 50px;
@@ -453,12 +454,15 @@ export default {
   }
   .card-panel-icon {
     margin-left: 10px;
-    color: #3b3a3a;
   }
   .transfer-container{
-  border: #C0C4CC 1px solid;
-  border-radius: 3px;
-  padding: 5px;
-  margin-bottom: 10px;
-}
+    border: #C0C4CC 1px solid;
+    border-radius: 3px;
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+  .note-text {
+    color: rgb(241, 84, 64);
+    margin-bottom: 10px;
+  }
 </style>
